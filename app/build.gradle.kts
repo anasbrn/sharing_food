@@ -92,6 +92,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.7.6")
 
      implementation("com.google.firebase:firebase-database-ktx")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
 
 
 

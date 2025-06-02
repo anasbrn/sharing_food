@@ -1,19 +1,21 @@
 package com.example.sharing_food.Activity.Dashboard
 
-import com.example.sharing_food.Repository.MainRepository
-import com.example.sharing_food.Domain.BannerModel
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.Alignment
 import com.example.sharing_food.R
 import com.example.sharing_food.Activity.BaseActivity
+import com.example.sharing_food.Activity.data.model.Category
+import com.example.sharing_food.ViewModel.FoodViewModel
 
 class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,17 +30,7 @@ class MainActivity : BaseActivity() {
 fun MainScreen() {
     var selectedItem by remember { mutableStateOf("Home") }
 
-    val bannerList = remember { mutableStateListOf<BannerModel>() }
-    var isLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        MainRepository().loadBanner().observeForever { list: MutableList<BannerModel> ->
-            bannerList.clear()
-            bannerList.addAll(list)
-            isLoading = false
-        }
-    }
-
+    var categoryIsLoading by remember { mutableStateOf(false) }
 
     val menuLabels = listOf("Home", "Cart", "Favorite", "Order", "Profile")
     val menuIcons = listOf(
@@ -75,14 +67,82 @@ fun MainScreen() {
             TopBar()
 
             when (selectedItem) {
-                "Home" -> Column {
-                    Banner(
-                        banners = bannerList,
-                        showBannerLoading = isLoading
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    // Add more home content here...
+                "Home" -> {
+                    var selectedCategory by remember { mutableStateOf<Category?>(null) }
+                    val foodViewModel = remember { FoodViewModel() }
+
+                    selectedCategory?.let { category ->
+                        val foodContext = LocalContext.current
+                        val foodSearchQuery = foodViewModel.searchQuery
+                        val foodErrorMsg = foodViewModel.errorMessage
+                        val filteredFoods = foodViewModel.filteredFoods
+
+                        LaunchedEffect(category.id) {
+                            foodViewModel.fetchFoodsByCategory(category.id)
+                        }
+
+                        LaunchedEffect(foodErrorMsg) {
+                            foodErrorMsg?.let {
+                                Toast.makeText(foodContext, it, Toast.LENGTH_LONG).show()
+                                foodViewModel.clearError()
+                            }
+                        }
+
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                "Foods in ${category.name}",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            SearchBar(
+                                query = foodSearchQuery,
+                                onQueryChanged = foodViewModel::updateSearchQuery
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            FoodList(filteredFoods)
+                            Button(onClick = { selectedCategory = null }) {
+                                Text("Back to Categories")
+                            }
+                        }
+                    } ?: run {
+                        // Show Categories
+                        if (categoryIsLoading) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        } else {
+                            val context = LocalContext.current
+                            val categoryViewModel = remember { CategoryViewModel() }
+                            val categorySearchQuery = categoryViewModel.searchQuery
+                            val filteredCategories = categoryViewModel.filteredCategories
+                            val categoryErrorMsg = categoryViewModel.errorMessage
+
+                            LaunchedEffect(categoryErrorMsg) {
+                                categoryErrorMsg?.let {
+                                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                                    categoryViewModel.clearError()
+                                }
+                            }
+                            // Show categories
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                SearchBar(
+                                    query = categorySearchQuery,
+                                    onQueryChanged = categoryViewModel::updateSearchQuery
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                CategoryGrid(categories = filteredCategories) { category ->
+                                    selectedCategory = category
+                                }
+                            }
+                        }
+                    }
                 }
+
                 "Cart" -> Text("Cart Screen")
                 "Favorite" -> Text("Favorite Screen")
                 "Order" -> Text("Order Screen")
