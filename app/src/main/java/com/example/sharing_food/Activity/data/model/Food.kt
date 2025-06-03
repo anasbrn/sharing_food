@@ -6,7 +6,7 @@ data class Food(
     val description: String = "",
     val imageUrl: String = "",
     val price: Double = 0.0,
-    val categoryId: String = "",
-    val producerId: String = "",
-    val snackBarId: String = ""
+    val category: Category = Category(),
+    val producer: User = User(),
+    val snackBar: SnackBar? = SnackBar()
 )

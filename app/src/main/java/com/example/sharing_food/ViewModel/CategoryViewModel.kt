@@ -2,23 +2,20 @@ package com.example.sharing_food.Activity.Dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import androidx.compose.runtime.*
 import com.example.sharing_food.Activity.data.model.Category
+import com.example.sharing_food.Activity.data.repository.category.CategoryRepository
+import com.example.sharing_food.utils.Resource
 
-class CategoryViewModel : ViewModel() {
-    var isLoading by mutableStateOf(true)
-        private set
+class CategoryViewModel(
+    private val repository: CategoryRepository
+) : ViewModel() {
 
     var searchQuery by mutableStateOf("")
         private set
 
-    var categories by mutableStateOf<List<Category>>(emptyList())
-        private set
-
-    var errorMessage by mutableStateOf<String?>(null)
+    var categoryState by mutableStateOf<Resource<List<Category>>>(Resource.Loading)
         private set
 
     init {
@@ -27,18 +24,7 @@ class CategoryViewModel : ViewModel() {
 
     private fun fetchCategories() {
         viewModelScope.launch {
-            try {
-                val snapshot = FirebaseFirestore.getInstance()
-                    .collection("categories")
-                    .get()
-                    .await()
-
-                categories = snapshot.toObjects(Category::class.java)
-            } catch (e: Exception) {
-                errorMessage = "Failed to load categories: ${e.message}"
-            } finally {
-                isLoading = false
-            }
+            categoryState = repository.loadCategories()
         }
     }
 
@@ -46,12 +32,13 @@ class CategoryViewModel : ViewModel() {
         searchQuery = query
     }
 
-    fun clearError() {
-        errorMessage = null
-    }
-
     val filteredCategories: List<Category>
-        get() = categories.filter {
-            it.name.contains(searchQuery, ignoreCase = true)
+        get() = when (val state = categoryState) {
+            is Resource.Success -> state.data.filter {
+                it.name.contains(searchQuery, ignoreCase = true)
+            }
+
+            else -> emptyList()
         }
 }
+

@@ -9,13 +9,15 @@ import androidx.compose.runtime.*
 import kotlinx.coroutines.launch
 
 class FoodViewModel : ViewModel() {
+    private val db = FirebaseFirestore.getInstance()
+
     var isLoading by mutableStateOf(true)
         private set
 
     var searchQuery by mutableStateOf("")
         private set
 
-    var foods by mutableStateOf<List<Food>>(emptyList())
+    var foods = mutableStateListOf<Food>()
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
@@ -24,17 +26,35 @@ class FoodViewModel : ViewModel() {
     fun fetchFoodsByCategory(categoryId: String) {
         viewModelScope.launch {
             try {
-                val snapshot = FirebaseFirestore.getInstance()
-                    .collection("foods")
-                    .whereEqualTo("categoryId", categoryId)
+                val snapshot = db.collection("foods")
+                    .whereEqualTo("category.id", categoryId)
                     .get()
                     .await()
 
-                foods = snapshot.toObjects(Food::class.java)
+                foods.clear()
+                foods.addAll(snapshot.toObjects(Food::class.java))
+
             } catch (e: Exception) {
                 errorMessage = "Failed to load foods: ${e.message}"
             } finally {
                 isLoading = false
+            }
+        }
+    }
+
+    fun addFood(food: Food) {
+        viewModelScope.launch {
+            try {
+                val docRef = db.collection("foods").document()
+                val foodWithId = food.copy(id = docRef.id)
+
+                docRef.set(foodWithId).await()
+
+                // Update local list
+                foods.add(foodWithId)
+
+            } catch (e: Exception) {
+                errorMessage = "Failed to add food: ${e.message}"
             }
         }
     }

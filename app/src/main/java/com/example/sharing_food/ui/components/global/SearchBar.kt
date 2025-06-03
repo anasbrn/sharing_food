@@ -1,4 +1,4 @@
-package com.example.sharing_food.Activity.Dashboard
+package com.example.sharing_food.ui.components.global
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.OutlinedTextField

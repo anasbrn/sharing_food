@@ -1,4 +1,4 @@
-package com.example.sharing_food.Activity.Dashboard
+package com.example.sharing_food.ui.components.dashboard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

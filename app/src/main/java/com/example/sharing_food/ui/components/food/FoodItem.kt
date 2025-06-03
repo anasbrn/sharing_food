@@ -1,5 +1,6 @@
-package com.example.sharing_food.Activity.Dashboard
+package com.example.sharing_food.ui.components.food
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,10 +23,11 @@ import coil.compose.AsyncImage
 import com.example.sharing_food.Activity.data.model.Food
 
 @Composable
-fun FoodItem(food: Food) {
+fun FoodItem(food: Food, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onClick() }
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -46,13 +48,13 @@ fun FoodItem(food: Food) {
 }
 
 @Composable
-fun FoodList(foods: List<Food>) {
+fun FoodList(foods: List<Food>, onFoodClick: (Food) -> Unit) {
     LazyColumn (
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(foods) { food ->
-            FoodItem(food)
+            FoodItem(food = food, onClick = { onFoodClick(food) }) // <-- Pass click
         }
     }
 }
