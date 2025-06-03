@@ -5,81 +5,92 @@ import com.example.sharing_food.Activity.data.model.Food
 import com.example.sharing_food.Activity.data.model.Order
 import com.example.sharing_food.Activity.data.model.SnackBar
 import com.example.sharing_food.Activity.data.model.User
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
+import com.google.firebase.Timestamp
 
 object DatabaseSeeder {
     fun seedFirestoreDatabase() {
-        val db = FirebaseFirestore.getInstance()
+        CoroutineScope(Dispatchers.IO).launch {
+            val db = FirebaseFirestore.getInstance()
 
-        val producer = User(
-            "4cqRHoC6D2h7FBmj5KwLCHRhyqp2",
-            "brnanas",
-            "brnanass@gmail.com",
-            "producer"
-        )
-        val client = User(
-            "a71b5a37-54bf-4c87-8380-77fce01c7489",
-            "Alice Client",
-            "alice@client.com",
-            "client"
-        )
-        db.collection("users").document(producer.uid).set(producer)
-        db.collection("users").document(client.uid).set(client)
+            val producer = User(
+                "4cqRHoC6D2h7FBmj5KwLCHRhyqp2",
+                "brnanas",
+                "brnanass@gmail.com",
+                "producer"
+            )
+            val client = User(
+                "a71b5a37-54bf-4c87-8380-77fce01c7489",
+                "Alice Client",
+                "alice@client.com",
+                "client"
+            )
 
-        val pizzaCategory = Category("1", "Pizza", "https://example.com/pizza.jpg")
-        val drinksCategory = Category("2", "Drinks", "https://example.com/drinks.jpg")
-        val dessertsCategory = Category("3", "Desserts", "https://example.com/desserts.jpg")
+            seedUser(db, producer)
+            seedUser(db, client)
 
-        val categories = listOf(
-            pizzaCategory, drinksCategory, dessertsCategory
-        )
-        categories.forEach { db.collection("categories").document(it.id).set(it) }
+            val categories = listOf(
+                Category("1", "Pizza", "https://example.com/pizza.jpg"),
+                Category("2", "Drinks", "https://example.com/drinks.jpg"),
+                Category("3", "Desserts", "https://example.com/desserts.jpg")
+            )
 
-        val snackBar1 = SnackBar(
-            "1",
-            "City Snack Bar",
-            "https://example.com/desserts.jpg",
-            GeoPoint(37.7749, -122.4194)
-        )
-        val snackBar2 = SnackBar(
-            id = "2",
-            name = "Downtown Snack Spot",
-            image = "https://example.com/snacks.jpg",
-            location = com.google.firebase.firestore.GeoPoint(34.0522, -118.2437) // Los Angeles
-        )
-        val snackBar3 = SnackBar(
-            id = "3",
-            name = "Beachside Snacks",
-            image = "https://example.com/beach.jpg",
-            location = com.google.firebase.firestore.GeoPoint(32.7157, -117.1611) // San Diego
-        )
-        db.collection("snackbars").document(snackBar1.id).set(snackBar1)
-        db.collection("snackbars").document(snackBar2.id).set(snackBar2)
-        db.collection("snackbars").document(snackBar3.id).set(snackBar3)
+            for (cat in categories) {
+                seedDocumentIfNotExists(db, "categories", cat.id, cat)
+            }
 
-        val pizza4Saison = Food(
-            "1",
-            "Pizza 4 Saison",
-            "This is Pizza 4 Saison",
-            "https://example.com/pizza.jpg",
-            40.50,
-            pizzaCategory,
-            producer,
-            snackBar1
-        )
-        db.collection("foods").document(pizza4Saison.id).set(pizza4Saison)
+            val snackBars = listOf(
+                SnackBar("1", "City Snack Bar", "https://example.com/desserts.jpg", GeoPoint(37.7749, -122.4194)),
+                SnackBar("2", "Downtown Snack Spot", "https://example.com/snacks.jpg", GeoPoint(34.0522, -118.2437)),
+                SnackBar("3", "Beachside Snacks", "https://example.com/beach.jpg", GeoPoint(32.7157, -117.1611))
+            )
 
-        val order = Order(
-            "1",
-            client,
-            pizza4Saison,
-            producer,
-            "Pending",
-            Timestamp.now(),
-            GeoPoint(40.7128, -74.0060)
-        )
-        db.collection("orders").document(order.id).set(order)
+            for (bar in snackBars) {
+                seedDocumentIfNotExists(db, "snackbars", bar.id, bar)
+            }
+
+            val pizza4Saison = Food(
+                "1",
+                "Pizza 4 Saison",
+                "This is Pizza 4 Saison",
+                "https://example.com/pizza.jpg",
+                40.50,
+                categories[0],
+                producer,
+                snackBars[0]
+            )
+            seedDocumentIfNotExists(db, "foods", pizza4Saison.id, pizza4Saison)
+
+            val order = Order(
+                "1",
+                client,
+                pizza4Saison,
+                producer,
+                "Pending",
+                Timestamp.now(),
+                GeoPoint(40.7128, -74.0060)
+            )
+            seedDocumentIfNotExists(db, "orders", order.id, order)
+        }
+    }
+
+    private suspend fun <T : Any> seedDocumentIfNotExists(db: FirebaseFirestore, collection: String, docId: String, data: T) {
+        val ref = db.collection(collection).document(docId)
+        val snapshot = ref.get().await()
+        if (!snapshot.exists()) {
+            ref.set(data, SetOptions.merge()).await()
+        }
+    }
+
+    private suspend fun seedUser(db: FirebaseFirestore, user: User) {
+        val ref = db.collection("users").document(user.uid)
+        val snapshot = ref.get().await()
+        if (!snapshot.exists()) {
+            ref.set(user, SetOptions.merge()).await()
+        }
     }
 }

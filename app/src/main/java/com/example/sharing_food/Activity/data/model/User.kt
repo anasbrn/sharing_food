@@ -5,5 +5,5 @@ data class User(
     val username: String = "",
     val email: String = "",
     val role: String = "", // You can also use an enum if roles are limited (e.g., "Client", "Producer", etc.)
-    val favorites: List<String> = emptyList()
+    val favorites: List<Food> = emptyList()
 )

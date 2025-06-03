@@ -1,16 +1,25 @@
 package com.example.sharing_food.ui.navigation.screens.home
 
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.sharing_food.ui.components.food.FoodList
 import com.example.sharing_food.ui.components.global.SearchBar
 import com.example.sharing_food.ViewModel.FoodViewModel
@@ -32,9 +41,8 @@ fun FoodListPage(
     val viewModel = remember { FoodViewModel() }
     val context = LocalContext.current
 
-    var showDialog by remember { mutableStateOf(false) }
-    var currentUserRole by remember { mutableStateOf<String?>(null) }
-    var currentUser by remember { mutableStateOf(User()) }
+    var currentUser by remember { mutableStateOf<User?>(null) }
+    var favorites by remember { mutableStateOf<List<Food>>(emptyList()) }
 
     val error = viewModel.errorMessage
 
@@ -44,14 +52,29 @@ fun FoodListPage(
             viewModel.clearError()
         }
     }
-
     LaunchedEffect(Unit) {
-        currentUser = userRepo.getCurrentUser()!!
-        currentUserRole = currentUser.role
+        currentUser = userRepo.getCurrentUser()
+        currentUser?.let { user ->
+            // Load favorites from user
+            favorites = user.favorites
+        }
     }
 
     LaunchedEffect(category.id) {
         viewModel.fetchFoodsByCategory(category.id)
+    }
+
+    // Function to add/remove favorites with Toast
+    fun toggleFavorite(food: Food) {
+        currentUser?.let { user ->
+            if (favorites.any { it.id == food.id }) {
+                viewModel.removeFoodFromFavorites(context, user.uid, food)
+                favorites = favorites.filterNot { it.id == food.id }
+            } else {
+                viewModel.addFoodToFavorites(context, user.uid, food)
+                favorites = favorites + food
+            }
+        }
     }
 
     Scaffold(
@@ -66,9 +89,9 @@ fun FoodListPage(
             )
         },
         floatingActionButton = {
-            if (currentUserRole == "producer") {
+            if (currentUser?.role == "producer") {
                 FloatingActionButton(
-                    onClick = { showDialog = true },
+                    onClick = { /* your add food dialog logic */ },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
                 ) {
@@ -87,24 +110,12 @@ fun FoodListPage(
                 query = viewModel.searchQuery,
                 onQueryChanged = viewModel::updateSearchQuery
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             FoodList(
                 foods = viewModel.filteredFoods,
-                onFoodClick = onFoodSelected
-            )
-        }
-
-        if (showDialog) {
-            AddFoodDialog(
-                category = category,
-                producer = currentUser,
-                onDismiss = { showDialog = false },
-                onFoodAdded = { newFood ->
-                    viewModel.addFood(newFood)
-                    showDialog = false
-                }
+                favorites = favorites,
+                onFoodClick = onFoodSelected,
+                onFavoriteClick = { food -> toggleFavorite(food) }
             )
         }
     }
@@ -230,6 +241,80 @@ fun AddFoodDialog(
         }
     )
 }
+
+@Composable
+fun FoodListItem(
+    food: Food,
+    isFavorite: Boolean,
+    onFoodClick: (Food) -> Unit,
+    onFavoriteClick: (Food) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .padding(8.dp)
+            .clickable { onFoodClick(food) }
+    ) {
+        // Background food image
+        AsyncImage(
+            model = food.imageUrl,
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(MaterialTheme.shapes.medium)
+        )
+
+        // Overlay with name + favorite icon
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+//                .align(Alignment.BottomStart)
+                .background(Color.Black.copy(alpha = 0.5f), shape = MaterialTheme.shapes.medium)
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = food.name,
+                color = Color.White,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
+
+            IconButton(onClick = { onFavoriteClick(food) }) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                    tint = if (isFavorite) Color.Red else Color.White
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun FoodList(
+    foods: List<Food>,
+    favorites: List<Food>,
+    onFoodClick: (Food) -> Unit,
+    onFavoriteClick: (Food) -> Unit
+) {
+    LazyColumn {
+        items(foods) { food ->
+            val isFavorite = favorites.any { it.id == food.id }
+            FoodListItem(
+                food = food,
+                isFavorite = isFavorite,
+                onFoodClick = onFoodClick,
+                onFavoriteClick = onFavoriteClick
+            )
+        }
+    }
+}
+
+
+
 
 
 

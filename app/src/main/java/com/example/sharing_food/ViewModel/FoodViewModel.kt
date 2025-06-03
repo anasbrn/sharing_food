@@ -1,11 +1,14 @@
 package com.example.sharing_food.ViewModel
 
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sharing_food.Activity.data.model.Food
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import androidx.compose.runtime.*
+import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.launch
 
 class FoodViewModel : ViewModel() {
@@ -57,6 +60,28 @@ class FoodViewModel : ViewModel() {
                 errorMessage = "Failed to add food: ${e.message}"
             }
         }
+    }
+
+    fun addFoodToFavorites(context: Context, userId: String, food: Food) {
+        val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+        userRef.update("favorites", FieldValue.arrayUnion(food))
+            .addOnSuccessListener {
+                Toast.makeText(context, "Food added to favorites", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Failed to add favorite: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    fun removeFoodFromFavorites(context: Context, userId: String, food: Food) {
+        val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+        userRef.update("favorites", FieldValue.arrayRemove(food))
+            .addOnSuccessListener {
+                Toast.makeText(context, "Food removed from favorites", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Failed to remove favorite: ${e.message}", Toast.LENGTH_LONG).show()
+            }
     }
 
     fun updateSearchQuery(query: String) {
