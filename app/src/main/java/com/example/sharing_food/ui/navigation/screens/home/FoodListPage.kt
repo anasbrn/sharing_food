@@ -15,12 +15,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.sharing_food.ui.components.food.FoodList
 import com.example.sharing_food.ui.components.global.SearchBar
 import com.example.sharing_food.ViewModel.FoodViewModel
 import com.example.sharing_food.Activity.data.model.*
@@ -41,6 +40,7 @@ fun FoodListPage(
     val viewModel = remember { FoodViewModel() }
     val context = LocalContext.current
 
+    var showDialog by remember { mutableStateOf(false) }
     var currentUser by remember { mutableStateOf<User?>(null) }
     var favorites by remember { mutableStateOf<List<Food>>(emptyList()) }
 
@@ -91,7 +91,7 @@ fun FoodListPage(
         floatingActionButton = {
             if (currentUser?.role == "producer") {
                 FloatingActionButton(
-                    onClick = { /* your add food dialog logic */ },
+                    onClick = { showDialog = true },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
                 ) {
@@ -249,49 +249,69 @@ fun FoodListItem(
     onFoodClick: (Food) -> Unit,
     onFavoriteClick: (Food) -> Unit
 ) {
-    Box(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp)
-            .padding(8.dp)
-            .clickable { onFoodClick(food) }
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .clickable { onFoodClick(food) },
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        // Background food image
-        AsyncImage(
-            model = food.imageUrl,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(MaterialTheme.shapes.medium)
-        )
-
-        // Overlay with name + favorite icon
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-//                .align(Alignment.BottomStart)
-                .background(Color.Black.copy(alpha = 0.5f), shape = MaterialTheme.shapes.medium)
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = food.name,
-                color = Color.White,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
+        Box(modifier = Modifier.height(180.dp)) {
+            // Background image
+            AsyncImage(
+                model = food.imageUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize()
             )
 
-            IconButton(onClick = { onFavoriteClick(food) }) {
-                Icon(
-                    imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                    tint = if (isFavorite) Color.Red else Color.White
-                )
+            // Overlay gradient + content
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
+                            startY = 50f
+                        )
+                    )
+            )
+
+            // Bottom info row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart)
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = food.name,
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "${food.price} DH",
+                        color = Color.White.copy(alpha = 0.8f),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
+                IconButton(
+                    onClick = { onFavoriteClick(food) },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favorite",
+                        tint = if (isFavorite) Color.Red else Color.White
+                    )
+                }
             }
         }
     }
 }
-
 
 @Composable
 fun FoodList(
