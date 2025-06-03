@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.example.sharing_food.R
 import com.example.sharing_food.Activity.BaseActivity
 import com.example.sharing_food.ui.components.dashboard.TopBar
+import com.example.sharing_food.ui.navigation.screens.cart.CartePage
 import com.example.sharing_food.ui.navigation.screens.home.HomePage
 
 class MainActivity : BaseActivity() {
@@ -63,7 +64,7 @@ fun MainScreen() {
 
             when (selectedTab) {
                 "Home" -> HomePage()
-//                    "Cart" -> CartPage()
+                    "Cart" -> CartePage()
 //                    "Favorite" -> FavoritePage()
 //                    "Order" -> OrderPage()
 //                    "Profile" -> ProfilePage()

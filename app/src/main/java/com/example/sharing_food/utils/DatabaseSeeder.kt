@@ -37,13 +37,27 @@ object DatabaseSeeder {
         )
         categories.forEach { db.collection("categories").document(it.id).set(it) }
 
-        val snackBar = SnackBar(
+        val snackBar1 = SnackBar(
             "1",
             "City Snack Bar",
             "https://example.com/desserts.jpg",
             GeoPoint(37.7749, -122.4194)
         )
-        db.collection("snackbars").document(snackBar.id).set(snackBar)
+        val snackBar2 = SnackBar(
+            id = "2",
+            name = "Downtown Snack Spot",
+            image = "https://example.com/snacks.jpg",
+            location = com.google.firebase.firestore.GeoPoint(34.0522, -118.2437) // Los Angeles
+        )
+        val snackBar3 = SnackBar(
+            id = "3",
+            name = "Beachside Snacks",
+            image = "https://example.com/beach.jpg",
+            location = com.google.firebase.firestore.GeoPoint(32.7157, -117.1611) // San Diego
+        )
+        db.collection("snackbars").document(snackBar1.id).set(snackBar1)
+        db.collection("snackbars").document(snackBar2.id).set(snackBar2)
+        db.collection("snackbars").document(snackBar3.id).set(snackBar3)
 
         val pizza4Saison = Food(
             "1",
@@ -53,7 +67,7 @@ object DatabaseSeeder {
             40.50,
             pizzaCategory,
             producer,
-            snackBar
+            snackBar1
         )
         db.collection("foods").document(pizza4Saison.id).set(pizza4Saison)
 
