@@ -64,7 +64,7 @@ object DatabaseSeeder {
             producer,
             "Pending",
             Timestamp.now(),
-            GeoPoint(37.7739, -122.4214)
+            GeoPoint(40.7128, -74.0060)
         )
         db.collection("orders").document(order.id).set(order)
     }

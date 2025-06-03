@@ -93,6 +93,8 @@ dependencies {
 
      implementation("com.google.firebase:firebase-database-ktx")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    implementation("com.google.maps.android:maps-compose:2.11.3")
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
 
 
 

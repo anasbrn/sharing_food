@@ -13,6 +13,10 @@
         android:theme="@style/Theme.SHARING_FOOD"
         tools:targetApi="31">
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDZ_nRyx28rh5SpsISbdk9JMPUnkniNpNg" />
+
         <activity android:name=".Activity.BaseActivity" android:exported="false" />
 
         <activity
