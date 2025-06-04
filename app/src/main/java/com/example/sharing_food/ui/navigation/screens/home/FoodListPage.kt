@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -156,10 +157,12 @@ fun AddFoodDialog(
                 nameError = name.isBlank()
                 descriptionError = description.isBlank()
                 imageUrlError = imageUrl.isBlank()
-                priceError = price.isBlank() || price.toDoubleOrNull() == null || price.toDouble() <= 0
+                priceError =
+                    price.isBlank() || price.toDoubleOrNull() == null || price.toDouble() <= 0
                 snackBarError = selectedSnackBar == null
 
-                val isValid = !(nameError || descriptionError || imageUrlError || priceError || snackBarError)
+                val isValid =
+                    !(nameError || descriptionError || imageUrlError || priceError || snackBarError)
 
                 if (isValid) {
                     val newFood = Food(
@@ -258,17 +261,18 @@ fun FoodListItem(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(modifier = Modifier.height(180.dp)) {
-            // Background image
+            // ✅ Background image fills entire card
             AsyncImage(
                 model = food.imageUrl,
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize()
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize()
             )
 
-            // Overlay gradient + content
+            // Overlay gradient
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .matchParentSize()
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
@@ -277,7 +281,7 @@ fun FoodListItem(
                     )
             )
 
-            // Bottom info row
+            // Bottom text and favorite button
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

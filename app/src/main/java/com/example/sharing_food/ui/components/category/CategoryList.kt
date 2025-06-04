@@ -1,5 +1,6 @@
 package com.example.sharing_food.ui.components.category
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -7,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -18,26 +20,32 @@ fun CategoryItem(category: Category, onClick: (Category) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp)
-            .clickable { onClick(category) }, // 🔥 clickable
+            .aspectRatio(1f)
+            .clickable { onClick(category) },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Background Image
             AsyncImage(
                 model = category.imageUrl,
                 contentDescription = category.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f), // Square image
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
+            // Semi-transparent overlay for text readability (optional)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
+            )
+
+            // Centered Category Name
             Text(
                 text = category.name,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.align(Alignment.Center)
             )
         }
     }
@@ -57,20 +65,3 @@ fun CategoryGrid(categories: List<Category>, onCategoryClick: (Category) -> Unit
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun CategoryItemPreview() {
-//    val sampleCategory = Category(
-//        id = "1",
-//        name = "Pizza",
-//        imageUrl = "https://res.cloudinary.com/dkikc5ywq/image/upload/v1738610243/benner1_fmdi0w.jpg"
-//    )
-//    val sampleCategory2 = Category(
-//        id = "1",
-//        name = "Pizza",
-//        imageUrl = "https://example.com/pizza.jpg"
-//    )
-//    var categories = listOf(sampleCategory, sampleCategory2)
-//    CategoryGrid(categories = categories)
-//}
