@@ -22,7 +22,6 @@ import com.example.sharing_food.ui.components.global.SearchBar
 import com.example.sharing_food.utils.Resource
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.maps.android.compose.*
 
@@ -58,7 +57,14 @@ fun OrderPage() {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("My Orders") })
+            TopAppBar(
+                title = { Text("My Orders") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                ),
+            )
+
         }
     ) { innerPadding ->
         Column(

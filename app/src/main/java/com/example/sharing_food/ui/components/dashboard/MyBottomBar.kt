@@ -1,43 +1,61 @@
 package com.example.sharing_food.ui.components.dashboard
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.Surface
-import com.example.sharing_food.R
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.vector.ImageVector
 
-data class BottomMenuItem(val label: String, val icon: Painter)
+data class BottomMenuItem(val label: String, val icon: ImageVector)
 
 @Composable
-fun MyBottomBar() {
+fun MyBottomBar(
+    selectedRoute: String = "Home",
+    onItemSelected: (String) -> Unit = {}
+) {
     val bottomMenuItemsList = prepareBottomMenu()
-    var selectedItem by remember { mutableStateOf("Home") }
 
     NavigationBar(
-        containerColor = Color.Gray,
-        tonalElevation = 3.dp,
+        containerColor = Color.White,
+        tonalElevation = 8.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
-        bottomMenuItemsList.forEach { bottomMenuItem ->
+        bottomMenuItemsList.forEach { item ->
+            val isSelected = item.label == selectedRoute
             NavigationBarItem(
-                selected = (selectedItem == bottomMenuItem.label),
-                onClick = { selectedItem = bottomMenuItem.label },
+                selected = isSelected,
+                onClick = { onItemSelected(item.label) },
                 icon = {
                     Icon(
-                        painter = bottomMenuItem.icon,
-                        contentDescription = bottomMenuItem.label
+                        imageVector = item.icon,
+                        contentDescription = item.label,
+                        tint = if (isSelected)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
-                label = null // ou tu peux mettre un Text(bottomMenuItem.label) si tu veux
+                label = {
+                    Text(
+                        text = item.label,
+                        color = if (isSelected)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             )
         }
     }
@@ -46,18 +64,10 @@ fun MyBottomBar() {
 @Composable
 fun prepareBottomMenu(): List<BottomMenuItem> {
     return listOf(
-        BottomMenuItem("Home", painterResource(R.drawable.btn_1)),
-        BottomMenuItem("Cart", painterResource(R.drawable.btn_2)),
-        BottomMenuItem("Favorite", painterResource(R.drawable.btn_3)),
-        BottomMenuItem("Order", painterResource(R.drawable.btn_4)),
-        BottomMenuItem("Profile", painterResource(R.drawable.btn_5))
+        BottomMenuItem("Home", Icons.Filled.Home),
+        BottomMenuItem("Cart", Icons.Filled.LocationOn),
+        BottomMenuItem("Favorite", Icons.Filled.Favorite),
+        BottomMenuItem("Order", Icons.Filled.ShoppingCart),
+        BottomMenuItem("Profile", Icons.Filled.Person)
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewMyBottomBar() {
-    Surface {
-        MyBottomBar()
-    }
 }

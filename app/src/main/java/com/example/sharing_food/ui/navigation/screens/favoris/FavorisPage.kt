@@ -38,6 +38,10 @@ fun FavorisPage() {
         topBar = {
             TopAppBar(
                 title = { Text("My Favorites") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                ),
             )
         }
     ) { innerPadding ->
