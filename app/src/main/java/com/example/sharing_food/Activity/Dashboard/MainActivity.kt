@@ -15,6 +15,7 @@ import com.example.sharing_food.ui.components.dashboard.TopBar
 import com.example.sharing_food.ui.navigation.screens.cart.CartePage
 import com.example.sharing_food.ui.navigation.screens.favoris.FavorisPage
 import com.example.sharing_food.ui.navigation.screens.home.HomePage
+import com.example.sharing_food.ui.navigation.screens.order.OrderPage
 
 class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +68,7 @@ fun MainScreen() {
                 "Home" -> HomePage()
                     "Cart" -> CartePage()
                     "Favorite" -> FavorisPage()
-//                    "Order" -> OrderPage()
+                    "Order" -> OrderPage()
 //                    "Profile" -> ProfilePage()
                 else -> Text("Unknown screen")
             }

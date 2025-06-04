@@ -24,9 +24,9 @@ object DatabaseSeeder {
                 "producer"
             )
             val client = User(
-                "a71b5a37-54bf-4c87-8380-77fce01c7489",
-                "Alice Client",
-                "alice@client.com",
+                "v9hUzY0coCY2xavwwlEyVlIUtCx1",
+                "anasclient",
+                "anasbarnoch@gmail.com",
                 "client"
             )
 
