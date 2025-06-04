@@ -7,4 +7,5 @@ sealed class HomeScreenState {
     object Categories : HomeScreenState()
     data class FoodList(val category: Category) : HomeScreenState()
     data class FoodDetail(val food: Food) : HomeScreenState()
+    data class OrderFood(val food: Food) : HomeScreenState()
 }

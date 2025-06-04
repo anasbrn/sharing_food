@@ -10,5 +10,7 @@ data class Order(
     val producer: User = User(),
     val status: String = "", // e.g., "Pending", "Preparing", "Out for Delivery", "Delivered"
     val timestamp: Timestamp = Timestamp.now(),
-    val clientLocation: GeoPoint = GeoPoint(0.0, 0.0)
+    val clientLocation: GeoPoint = GeoPoint(0.0, 0.0),
+    val quantity: Int = 1,
+    val totalPrice: Double = 0.0
 )

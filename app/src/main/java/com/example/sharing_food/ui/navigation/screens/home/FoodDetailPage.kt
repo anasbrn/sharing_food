@@ -1,5 +1,6 @@
 package com.example.sharing_food.ui.navigation.screens.home
 
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -23,12 +24,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodDetailPage(
     food: Food,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onReserveClick: (Food) -> Unit = {}
 ) {
     val snackBarName = remember { mutableStateOf<String?>(null) }
     val snackBarImage = remember { mutableStateOf<String?>(null) }
@@ -63,7 +66,7 @@ fun FoodDetailPage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = food.name) },
+                title = { Text(text = food.name, style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -72,42 +75,82 @@ fun FoodDetailPage(
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(16.dp)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
         ) {
-            snackBarImage.value?.let {
+            // Scrollable content
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 70.dp) // Add padding to prevent content behind button
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
                 AsyncImage(
-                    model = it,
-                    contentDescription = "Snack Bar Image",
+                    model = food.imageUrl,
+                    contentDescription = "Food Image",
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "${food.price} DH",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = food.description,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Provided by: ${snackBarName.value ?: "Loading..."}",
+                    style = MaterialTheme.typography.labelLarge
+                )
+
                 Spacer(modifier = Modifier.height(12.dp))
-            }
 
-            Text("Snack Bar: ${snackBarName.value ?: "Loading..."}")
-            Spacer(modifier = Modifier.height(16.dp))
-
-            snackBarLat.value?.let { lat ->
-                snackBarLng.value?.let { lng ->
-                    val location = LatLng(lat, lng)
+                if (snackBarLat.value != null && snackBarLng.value != null) {
+                    val location = LatLng(snackBarLat.value!!, snackBarLng.value!!)
                     GoogleMap(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(300.dp),
+                            .height(250.dp),
                         cameraPositionState = cameraPositionState
                     ) {
                         Marker(
                             state = MarkerState(position = location),
-                            title = snackBarName.value ?: "SnackBar Location"
+                            title = snackBarName.value ?: "Snack Bar"
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Fixed bottom button
+            Button(
+                onClick = { onReserveClick(food) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Order", color = Color.White)
             }
         }
     }

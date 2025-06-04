@@ -39,7 +39,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 fun OrderPage() {
     val context = LocalContext.current
 
-    // Manual DI
     val firestore = remember { FirebaseFirestore.getInstance() }
     val orderRepo = remember { OrderRepositoryImpl(firestore) }
     val userRepo = remember { UserRepository() }

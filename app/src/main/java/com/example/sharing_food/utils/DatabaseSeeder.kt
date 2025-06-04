@@ -72,7 +72,9 @@ object DatabaseSeeder {
                 producer,
                 "Pending",
                 Timestamp.now(),
-                GeoPoint(40.7128, -74.0060)
+                GeoPoint(40.7128, -74.0060),
+                2,
+                pizza4Saison.price * 2
             )
             seedDocumentIfNotExists(db, "orders", order.id, order)
         }
