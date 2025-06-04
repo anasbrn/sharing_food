@@ -65,7 +65,18 @@ fun FoodListPage(
         viewModel.fetchFoodsByCategory(category.id)
     }
 
-    // Function to add/remove favorites with Toast
+    if (showDialog && currentUser != null) {
+        AddFoodDialog(
+            category = category,
+            producer = currentUser!!,
+            onDismiss = { showDialog = false },
+            onFoodAdded = { newFood ->
+                viewModel.addFood(newFood)
+                showDialog = false
+            }
+        )
+    }
+
     fun toggleFavorite(food: Food) {
         currentUser?.let { user ->
             if (favorites.any { it.id == food.id }) {
