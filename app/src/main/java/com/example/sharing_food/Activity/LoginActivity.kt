@@ -6,7 +6,6 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sharing_food.Activity.Dashboard.MainActivity
 import com.example.sharing_food.R
-import com.example.sharing_food.utils.DatabaseSeeder
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
@@ -16,7 +15,6 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-//        DatabaseSeeder.seedFirestoreDatabase()
 
         // Init Firebase Auth
         auth = FirebaseAuth.getInstance()

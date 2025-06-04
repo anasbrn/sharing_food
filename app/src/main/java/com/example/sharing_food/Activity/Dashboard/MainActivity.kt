@@ -13,6 +13,7 @@ import com.example.sharing_food.ui.navigation.screens.cart.CartePage
 import com.example.sharing_food.ui.navigation.screens.favoris.FavorisPage
 import com.example.sharing_food.ui.navigation.screens.home.HomePage
 import com.example.sharing_food.ui.navigation.screens.order.OrderPage
+import com.example.sharing_food.ui.navigation.screens.profile.ProfilePage
 import com.example.sharing_food.ui.theme.SharingFoodTheme
 
 class MainActivity : BaseActivity() {
@@ -29,15 +30,12 @@ class MainActivity : BaseActivity() {
 @Composable
 fun MainScreen() {
     var selectedTab by remember { mutableStateOf("Home") }
-
     Scaffold(
         bottomBar = {
-            SharingFoodTheme {
-                MyBottomBar(
-                    selectedRoute = selectedTab,
-                    onItemSelected = { selectedTab = it }
-                )
-            }
+            MyBottomBar(
+                selectedRoute = selectedTab,
+                onItemSelected = { selectedTab = it }
+            )
         }
     ) { padding ->
         Column(
@@ -51,7 +49,7 @@ fun MainScreen() {
                 "Cart" -> CartePage()
                 "Favorite" -> FavorisPage()
                 "Order" -> OrderPage()
-//                    "Profile" -> ProfilePage()
+                "Profile" -> ProfilePage()
                 else -> Text("Unknown screen")
             }
         }
