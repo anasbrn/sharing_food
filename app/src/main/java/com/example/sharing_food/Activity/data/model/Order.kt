@@ -6,7 +6,7 @@ import com.google.firebase.firestore.GeoPoint
 data class Order(
     val id: String = "",
     val client: User = User(),
-    val food: Food = Food (),
+    val food: Food = Food(),
     val producer: User = User(),
     val status: String = "", // e.g., "Pending", "Preparing", "Out for Delivery", "Delivered"
     val timestamp: Timestamp = Timestamp.now(),

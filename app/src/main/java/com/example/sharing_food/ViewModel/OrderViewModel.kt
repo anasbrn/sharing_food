@@ -20,15 +20,59 @@ class OrderViewModel(
     var orderState by mutableStateOf<Resource<List<Order>>>(Resource.Loading)
         private set
 
+    private var currentUserRole: String? = null
+    private var currentUserId: String? = null
+
     init {
-        fetchUserOrders()
+        fetchData()
     }
 
-    private fun fetchUserOrders() {
+    private fun fetchData() {
         viewModelScope.launch {
-            val currentUser = userRepository.getCurrentUser()
-            currentUser?.let {
-                orderState = repository.getUserOrders(it.uid)
+            try {
+                val currentUser = userRepository.getCurrentUser()
+                currentUserRole = currentUser?.role
+                currentUserId = currentUser?.uid
+                when (currentUserRole) {
+                    "producer" -> {
+                        orderState = repository.getProducerOrders(currentUserId!!)
+                    }
+
+                    "client" -> {
+                        orderState = repository.getUserOrders(currentUserId!!)
+                    }
+
+                    else -> {
+                        orderState = Resource.Error("Unknown user role or user not logged in")
+                    }
+                }
+            } catch (e: Exception) {
+                orderState = Resource.Error("Failed to fetch orders: ${e.message}")
+            }
+        }
+    }
+
+    private fun fetchOrders() {
+        if (currentUserRole != "producer" || currentUserId == null) {
+            return
+        }
+        viewModelScope.launch {
+            try {
+                orderState = repository.getProducerOrders(currentUserId!!)
+            } catch (e: Exception) {
+                orderState = Resource.Error("Failed to fetch producer orders: ${e.message}")
+            }
+        }
+    }
+
+    fun updateOrderStatus(order: Order, newStatus: String, onComplete: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                repository.updateOrderStatus(order.id, newStatus)
+                onComplete(true, "Order status updated")
+                fetchOrders()
+            } catch (e: Exception) {
+                onComplete(false, "Failed to update order: ${e.message}")
             }
         }
     }
@@ -42,6 +86,8 @@ class OrderViewModel(
             is Resource.Success -> state.data.filter {
                 it.food.name.contains(searchQuery, ignoreCase = true)
             }
+
             else -> emptyList()
         }
 }
+

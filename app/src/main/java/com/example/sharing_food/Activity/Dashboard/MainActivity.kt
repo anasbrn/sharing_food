@@ -11,11 +11,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.sharing_food.R
 import com.example.sharing_food.Activity.BaseActivity
+import com.example.sharing_food.Activity.data.model.User
 import com.example.sharing_food.ui.components.dashboard.TopBar
 import com.example.sharing_food.ui.navigation.screens.cart.CartePage
 import com.example.sharing_food.ui.navigation.screens.favoris.FavorisPage
 import com.example.sharing_food.ui.navigation.screens.home.HomePage
 import com.example.sharing_food.ui.navigation.screens.order.OrderPage
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,17 +65,28 @@ fun MainScreen() {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            TopBar() // Optional: a composable for app title/logo
-
+            TopBar()
+//            val firebaseUser = FirebaseAuth.getInstance().currentUser
+//            var currentUser = remember { User() }
+//            firebaseUser?.let { user ->
+//                val uid = user.uid
+//                val db = FirebaseFirestore.getInstance()
+//                db.collection("users").document(uid).get()
+//                    .addOnSuccessListener { document ->
+//                        if (document.exists()) {
+//                            currentUser = document.toObject(User::class.java)!!
+//                        }
+//                    }
+//            }
             when (selectedTab) {
                 "Home" -> HomePage()
-                    "Cart" -> CartePage()
-                    "Favorite" -> FavorisPage()
-                    "Order" -> OrderPage()
+                "Cart" -> CartePage()
+                "Favorite" -> FavorisPage()
+                "Order" -> OrderPage()
 //                    "Profile" -> ProfilePage()
                 else -> Text("Unknown screen")
             }
+            }
         }
-    }
 
-}
+    }
